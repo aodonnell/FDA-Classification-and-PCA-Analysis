@@ -1,5 +1,9 @@
-%% FDA magic it is recomended that your machine has atleast 8GB of ram. 4GB will most likely not be enough
-% script made by alex odonnell and patrick savoie 
+%% FDA magic 
+% it is recomended that your machine has atleast 8GB of ram. 4GB will most
+% likely not be enough. You may need to clear portions of your workspace
+% during the program. 
+% script created by alex odonnell
+
 fprintf(['The program has been paused. This flag has been placed here to avoid \n '...
     'the scenario where the user accidentally runs the entire script. It is \n'...
     'recommended that you run it by section in order to gain a better understanding \n'...
@@ -17,7 +21,7 @@ close all
 %% setting parameters
 % =========================================================================
 facefolder = 'img_align_celeba_crop/img_align_celeba_crop/';
-nonfacefolder = 'Non-face/';
+nonfacefolder = 'non_face/';
 generated = 'generated_faces/generated_faces/';
 
 a = dir(facefolder);
@@ -93,6 +97,7 @@ hold on;
 histogram(Z(Y==0),'FaceColor',[0.8 0 0])
 histogram(Z(Y==1),'FaceColor',[0 0.8 0])
 histogram(Zgen,'FaceColor',[0 0 0.8])
+legend('Artificial', 'Not Faces', 'Real Faces');
 hold off;
 
 %%
@@ -114,17 +119,16 @@ for L = 1:10 % for each partition
     n = size(Y(idxTest),1);
 
     %Accuracy set q of cross validation
-    accuracy(L) = sum(Y(idxTest) == predict(linDisc, Z(idxTest)'))/n;
+    accuracyLDA(L) = sum(Y(idxTest) == predict(linDisc, Z(idxTest)'))/n;
     LDApredictions(L,:) = predict(linDisc, Zgen')/n;
 
 end
-disp('LDA complete.')
+disp(['LDA complete. The mean accuracy was ' num2str(mean(accuracyLDA)) '.'])
 toc
 
 %% visualize a subset of the generated images that failed the linear discriminator
-
 failidx = find(LDApredictions(1,:) == 0);
-
+disp(['There were ' num2str(size(failidx,2)) ' samples that failed the LDA discriminator.'])
 
 for i = 1:64
     failedimg{i} = reshape(Xgen(failidx(i),:),[64,64]);
@@ -133,9 +137,6 @@ imagemat = cat(4,failedimg{1:64});
 
 figure(2)
 montage(imagemat, 'DisplayRange', [0 255]);
-
-%% clear more values
-clear failidx imagemat
 
 %% Select optimum K value and distance metric
 % =========================================================================
@@ -152,6 +153,8 @@ accuracyMean_m = zeros(3,1);
 k_best = accuracyMean_m;
 % Test with different values of k
 
+figure(5)
+hold on;
 for m = 1:3
     tic
     for k = 1:max_k
@@ -177,8 +180,18 @@ for m = 1:3
     % Choose the value of k that yields the best perfo rmance
     k_best(m) = find(accuracyMean_k ==  max(accuracyMean_k));
     disp(['Optimal k value below ' num2str(max_k) ' for ' distance_metric{m} 'distance: ' num2str(k_best(m)) '.'] )
+    
+    % plot accuracy vs number of partitions
+    plot([1:30],accuracyMean_k)
+    xlim([1 30])
     toc
 end
+
+legend(distance_metric);
+
+%% plot accuracy vs number of partitions
+figure(5)
+plot([1:30],accuracyMean_k)
 
 %% Free up some more space
 clear accuracyMean_m accuracyMean_k
@@ -214,9 +227,9 @@ accuracyMean = mean(accuracyKNN);
 disp(['KNN complete. With optimal parameters, mean accuracy for all partitions: ' num2str(accuracyMean) '.'])
 toc
 
-
 %% visualize a subset of the generated images that failed the KNN discriminator
 failidx = find(KNNpredictions(1,:) == 0);
+disp(['There were ' num2str(size(failidx,2)) ' samples that failed the KNN discriminator.'])
 
 for i = 1:64
     failedimg{i} = reshape(Xgen(failidx(i),:),[64,64]);
@@ -226,14 +239,11 @@ imagemat = cat(4,failedimg{1:64});
 figure(3)
 montage(imagemat, 'DisplayRange', [0 255]);
 
-
 %% SVM (takes roughly 15 mins for an i7 CPU with 16 gigs of RAM)
 % =========================================================================
 SVMpredictions = zeros(10,5000);
-
 tic
 for L = 1:10 % for each partition
-    
     
     % separate training and test data
     idxTrn = training(partition,L); % training set indices
@@ -255,6 +265,7 @@ toc
 
 %% visualize a subset of the generated images that failed the SVM discriminator
 failidx = find(SVMpredictions(1,:) == 0);
+disp(['There were ' num2str(size(failidx,2)) ' samples that failed the SVM discriminator.'])
 
 for i = 1:64
     failedimg{i} = reshape(Xgen(failidx(i),:),[64,64]);
