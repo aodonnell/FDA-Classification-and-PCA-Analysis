@@ -1,2 +1,2 @@
 # Classifier
-2nd Portion of my ECE4553 Project
+2nd Portion of my ECE4553 Project. The programs here won't work without any of the datasets described in the source. Currently the best approach found is the use of Fischer Discriminant analysis in order to signifigantly reduce dimensionality of the dataset. Where the problem is a binary classification excercise, FDA reduces the data to a single feature. Classifiers trained based of the new feature, dubbed "Z", were found to give the greatest accuracy despite the low dimensionality of the problem. 
