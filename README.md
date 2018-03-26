@@ -3,6 +3,6 @@
 
 <object data="https://github.com/alexodonn/FDA-Classification-and-PCA-Analysis/blob/master/Project.pdf" type="application/pdf" width="700px" height="700px">
     <embed src="https://github.com/alexodonn/FDA-Classification-and-PCA-Analysis/blob/master/Project.pdf">
-        Here's a link to the paper detailing our results: <a href="https://github.com/alexodonn/FDA-Classification-and-PCA-Analysis/blob/master/Project.pdf">Download PDF</a>.</p>
+        Here's a link to the paper detailing our results: <a href="https://github.com/alexodonn/FDA-Classification-and-PCA-Analysis/blob/master/Project.pdf">Open PDF</a>.</p>
     </embed>
 </object>
